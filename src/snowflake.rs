@@ -50,13 +50,4 @@ impl Snowflake {
 
         Ok(id)
     }
-
-    // Get the current time in milliseconds since UNIX epoch
-    #[inline(always)]
-    fn current_time() -> Result<i64, &'static str> {
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|duration| duration.as_millis() as i64)
-            .map_err(|_| "Failed to get current time.")
-    }
 }
