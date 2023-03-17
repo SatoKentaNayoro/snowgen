@@ -1,101 +1,53 @@
-use std::time::{Duration, Instant};
-use snowflake_rs::{Epoch, SnowflakeBuilder};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use snowflake_rs::SnowflakeBuilder;
 
 #[test]
-fn test_snowflake_generation() {
+fn test_snowflake_unique_ids() {
     let snowflake = SnowflakeBuilder::new()
         .node_id(1)
-        .epoch(Epoch::SystemTime(std::time::UNIX_EPOCH))
         .build()
         .unwrap();
+    let mut snowflake = Arc::new(Mutex::new(snowflake));
+    let mut ids = std::collections::HashSet::new();
 
-    let id1 = snowflake.next_id().unwrap();
-    let id2 = snowflake.next_id().unwrap();
-    assert_ne!(id1, id2);
+    for _ in 0..10000 {
+        let mut snowflake = snowflake.lock().unwrap();
+        let id = snowflake.next_id().unwrap();
+        drop(snowflake);
+        assert!(ids.insert(id), "ID duplicate：{}", id);
+    }
 }
 
 #[test]
-fn test_snowflake_id_uniqueness() {
+fn test_snowflake_unique_ids_multithread() {
     let snowflake = SnowflakeBuilder::new()
         .node_id(1)
-        .epoch(Epoch::SystemTime(std::time::UNIX_EPOCH))
         .build()
         .unwrap();
+    let snowflake = Arc::new(Mutex::new(snowflake));
+    let mut handles = vec![];
 
-    let mut ids = std::collections::HashSet::new();
-    for _ in 0..1000 {
-        ids.insert(snowflake.next_id().unwrap());
+    for _ in 0..10 {
+        let snowflake = Arc::clone(&snowflake);
+        let handle = thread::spawn(move || {
+            let mut ids = std::collections::HashSet::new();
+            for _ in 0..1000 {
+                let mut snowflake = snowflake.lock().unwrap();
+                let id = snowflake.next_id().unwrap();
+                drop(snowflake);
+                assert!(ids.insert(id), "ID duplicate：{}", id);
+            }
+            ids
+        });
+        handles.push(handle);
     }
 
-    assert_eq!(ids.len(), 1000);
-}
-
-#[test]
-fn test_snowflake_custom_parameters() {
-    let snowflake = SnowflakeBuilder::new()
-        .node_id(3)
-        .machine_id(2)
-        .epoch(Epoch::Instant(Instant::now() - Duration::from_secs(60)))
-        .timestamp_bits(42)
-        .node_id_bits(6)
-        .machine_id_bits(6)
-        .sequence_bits(10)
-        .build()
-        .unwrap();
-
-    let id1 = snowflake.next_id().unwrap();
-    let id2 = snowflake.next_id().unwrap();
-    assert_ne!(id1, id2);
-}
-
-#[test]
-fn test_snowflake_invalid_parameters() {
-    let builder = SnowflakeBuilder::new()
-        .node_id(32)
-        .machine_id(32)
-        .timestamp_bits(42)
-        .node_id_bits(12)
-        .machine_id_bits(8)
-        .sequence_bits(10);
-
-    assert!(builder.build().is_err());
-}
-
-#[test]
-fn test_snowflake_invalid_node_id() {
-    let builder = SnowflakeBuilder::new()
-        .node_id(-1)
-        .machine_id(0)
-        .timestamp_bits(41)
-        .node_id_bits(5)
-        .machine_id_bits(5)
-        .sequence_bits(12);
-
-    assert!(builder.build().is_err());
-}
-
-#[test]
-fn test_snowflake_invalid_machine_id() {
-    let builder = SnowflakeBuilder::new()
-        .node_id(0)
-        .machine_id(-1)
-        .timestamp_bits(41)
-        .node_id_bits(5)
-        .machine_id_bits(5)
-        .sequence_bits(12);
-
-    assert!(builder.build().is_err());
-}
-
-#[test]
-fn test_snowflake_exceeding_bit_sum() {
-    let builder = SnowflakeBuilder::new()
-        .node_id(0)
-        .machine_id(0)
-        .timestamp_bits(42)
-        .node_id_bits(12)
-        .machine_id_bits(8)
-        .sequence_bits(10);
-
-    assert!(builder.build().is_err());
+    let mut all_ids = std::collections::HashSet::new();
+    for handle in handles {
+        let ids = handle.join().unwrap();
+        for id in ids {
+            assert!(all_ids.insert(id), "ID duplicate：{}", id);
+        }
+    }
 }

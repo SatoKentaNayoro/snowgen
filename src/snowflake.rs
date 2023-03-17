@@ -1,4 +1,3 @@
-use std::sync::atomic::{AtomicI64, AtomicU16, Ordering};
 use std::time::{Duration, Instant};
 
 pub struct Snowflake {

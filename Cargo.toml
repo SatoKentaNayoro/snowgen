@@ -8,14 +8,18 @@ edition = "2021"
 [dependencies]
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.4.0"
 
 
 [[example]]
-name = "multithread_generate_ids"
-path = "./examples/multithread_generate_ids.rs"
+name = "multi_thread_example"
+path = "examples/multi_thread_example.rs"
 
+[[example]]
+name = "single_thread_example"
+path = "examples/single_thread_example.rs"
 
 [[bench]]
-name = "benchmark"
+name = "snowflake_benchmarks"
+path = "benches/snowflake_benchmarks.rs"
 harness = false
