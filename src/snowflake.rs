@@ -10,49 +10,29 @@ pub struct Snowflake {
     pub(crate) node_id_bits: u8,
     pub(crate) machine_id_bits: u8,
     pub(crate) sequence_bits: u8,
-    pub(crate) last_timestamp: AtomicI64,
-    pub(crate) sequence: AtomicU16,
+    pub(crate) last_timestamp: i64,
+    pub(crate) sequence: u16,
 }
 
 impl Snowflake {
     // Generate the next unique ID
-    pub fn next_id(&self) -> Result<u64, &'static str> {
-        let mut timestamp;
-        let mut seq;
+    pub fn next_id(&mut self) -> Result<u64, &'static str> {
+        let timestamp = self.current_timestamp();
+        let seq;
 
-        loop {
-            timestamp = self.current_timestamp();
-            let last_timestamp = self.last_timestamp.load(Ordering::SeqCst);
-            if timestamp == last_timestamp {
-                let current_seq = self.sequence.load(Ordering::SeqCst);
-                seq = current_seq + 1;
+        if timestamp == self.last_timestamp {
+            seq = self.sequence + 1;
 
-                if seq >= 1 << self.sequence_bits {
-                    std::thread::sleep(Duration::from_micros(1));
-                    continue;
-                }
-
-                match self.sequence.compare_exchange(current_seq, seq, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => break,
-                    Err(_) => {
-                        std::thread::yield_now();
-                        continue;
-                    }
-                }
-            } else {
-                seq = 0;
-                match self.last_timestamp.compare_exchange(last_timestamp, timestamp, Ordering::SeqCst, Ordering::Relaxed) {
-                    Ok(_) => {
-                        self.sequence.store(seq, Ordering::SeqCst);
-                        break;
-                    }
-                    Err(_) => {
-                        std::thread::yield_now();
-                        continue;
-                    }
-                }
+            if seq >= 1 << self.sequence_bits {
+                std::thread::sleep(Duration::from_micros(1));
+                return self.next_id();
             }
+        } else {
+            seq = 0;
+            self.last_timestamp = timestamp;
         }
+
+        self.sequence = seq;
 
         // Combine the timestamp, node_id, machine_id (if provided), and sequence to generate a unique ID
         let id = ((timestamp as u64) << (self.node_id_bits + self.machine_id_bits + self.sequence_bits))

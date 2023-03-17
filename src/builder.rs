@@ -1,4 +1,3 @@
-use std::sync::atomic::{AtomicI64, AtomicU16};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use crate::snowflake::Snowflake;
 
@@ -119,8 +118,8 @@ impl SnowflakeBuilder {
             node_id_bits: self.node_id_bits,
             machine_id_bits: self.machine_id_bits,
             sequence_bits: self.sequence_bits,
-            last_timestamp: AtomicI64::new(-1),
-            sequence: AtomicU16::new(0),
+            last_timestamp: -1,
+            sequence: 0,
         })
     }
 }

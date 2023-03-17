@@ -16,7 +16,7 @@ fn main() {
     let mut handles = Vec::with_capacity(num_threads);
 
     for i in 0..num_threads {
-        let snowflake_clone = Arc::clone(&snowflake);
+        let mut snowflake_clone = Arc::clone(&snowflake);
         let barrier_clone = Arc::clone(&barrier);
         let handle = thread::spawn(move || {
             let mut ids = Vec::with_capacity(num_ids_per_thread);
