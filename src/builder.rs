@@ -92,6 +92,11 @@ impl SnowflakeBuilder {
 
     // Build and validate the Snowflake generator
     pub fn build(self) -> Result<Snowflake, &'static str> {
+        //Verify that the sum of bits does not exceed 64
+        if self.timestamp_bits + self.node_id_bits + self.machine_id_bits + self.sequence_bits > 64 {
+            return Err("The sum of timestamp_bits, node_id_bits, machine_id_bits, and sequence_bits should not exceed 64.");
+        }
+
         // Verify that node_id is within the valid range
         let max_node_id = (1 << self.node_id_bits) - 1;
         if self.node_id < 0 || self.node_id > max_node_id {

@@ -5,6 +5,7 @@ pub struct Snowflake {
     pub(crate) node_id: i32,
     pub(crate) machine_id: Option<i32>,
     pub(crate) epoch: Instant,
+    #[allow(dead_code)]
     pub(crate) timestamp_bits: u8,
     pub(crate) node_id_bits: u8,
     pub(crate) machine_id_bits: u8,
@@ -16,7 +17,7 @@ pub struct Snowflake {
 impl Snowflake {
     // Generate the next unique ID
     pub fn next_id(&self) -> Result<u64, &'static str> {
-        let mut last_timestamp = self.last_timestamp.load(Ordering::Relaxed);
+        let last_timestamp = self.last_timestamp.load(Ordering::Relaxed);
         let mut sequence = self.sequence.load(Ordering::Relaxed);
         let mut timestamp = (Instant::now() - self.epoch).as_millis() as i64;
 
