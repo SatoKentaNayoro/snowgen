@@ -12,6 +12,11 @@ edition = "2021"
 criterion = "0.3"
 
 
+[[example]]
+name = "multithread_generate_ids"
+path = "./examples/multithread_generate_ids.rs"
+
+
 [[bench]]
 name = "benchmark"
 harness = false
