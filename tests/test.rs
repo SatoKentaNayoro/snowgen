@@ -8,7 +8,7 @@ fn test_snowflake_unique_ids() {
         .node_id(1)
         .build()
         .unwrap();
-    let mut snowflake = Arc::new(Mutex::new(snowflake));
+    let snowflake = Arc::new(Mutex::new(snowflake));
     let mut ids = std::collections::HashSet::new();
 
     for _ in 0..10000 {

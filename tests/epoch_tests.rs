@@ -1,5 +1,5 @@
 use snowflake_rs::{Epoch, SnowflakeBuilder};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[test]
 fn test_epoch_system_time() {
