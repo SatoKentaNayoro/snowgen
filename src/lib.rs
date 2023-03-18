@@ -1,5 +1,7 @@
-mod snowflake;
-mod builder;
+//! Snowgen is a library for generating unique, distributed IDs inspired by Twitter's Snowflake ID generator.
 
-pub use crate::snowflake::*;
+mod builder;
+mod snowgen;
+
 pub use crate::builder::*;
+pub use crate::snowgen::*;
