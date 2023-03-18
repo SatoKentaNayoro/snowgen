@@ -94,13 +94,13 @@ impl SnowgenBuilder {
     ///
     /// # Arguments
     ///
-    /// * `machine_id` - The desired machine_id as an i32.
+    /// * `machine_id` - The desired machine_id as an Option<i32>.
     ///
     /// # Returns
     ///
     /// A new SnowflakeBuilder instance with the updated machine_id value.
-    pub fn machine_id(mut self, machine_id: i32) -> Self {
-        self.machine_id = Some(machine_id);
+    pub fn machine_id(mut self, machine_id: Option<i32>) -> Self {
+        self.machine_id = machine_id;
         self
     }
 
