@@ -1,5 +1,8 @@
+//! Snowflake is a module that provides a struct for generating unique, distributed IDs.
+
 use std::time::{Duration, Instant};
 
+/// Snowflake struct represents a unique ID generator.
 pub struct Snowflake {
     pub(crate) node_id: i32,
     pub(crate) machine_id: Option<i32>,
@@ -14,7 +17,11 @@ pub struct Snowflake {
 }
 
 impl Snowflake {
-    // Generate the next unique ID
+    /// Generate the next unique ID.
+    ///
+    /// # Returns
+    ///
+    /// A Result containing a u64 unique ID or an error message.
     pub fn next_id(&mut self) -> Result<u64, &'static str> {
         let timestamp = self.current_timestamp();
         let seq;
@@ -42,6 +49,11 @@ impl Snowflake {
         Ok(id)
     }
 
+    /// Get the current timestamp based on the epoch.
+    ///
+    /// # Returns
+    ///
+    /// An i64 timestamp.
     #[inline(always)]
     fn current_timestamp(&self) -> i64 {
         self.epoch.elapsed().as_millis() as i64
