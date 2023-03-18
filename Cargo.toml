@@ -1,5 +1,5 @@
 [package]
-name = "snowflake_rs"
+name = "snowgen"
 version = "0.1.0"
 edition = "2021"
 authors = ["IronC <apehuang123@gmail.com>"]
@@ -27,5 +27,5 @@ path = "examples/single_thread_example.rs"
 
 [[bench]]
 name = "snowflake_benchmarks"
-path = "benches/snowflake_benchmarks.rs"
+path = "benches/snowgen_benchmarks.rs"
 harness = false

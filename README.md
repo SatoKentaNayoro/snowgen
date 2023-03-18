@@ -1,7 +1,7 @@
-Snowflake-RS
+Snowgen
 ============
 
-`Snowflake-RS` is a Rust-based library for generating unique, distributed IDs. It's inspired by Twitter's Snowflake ID generator and provides an efficient, thread-safe solution for generating unique IDs in distributed systems.
+`Snowgen` is a Rust-based library for generating unique, distributed IDs. It's inspired by Twitter's Snowflake ID generator and provides an efficient, thread-safe solution for generating unique IDs in distributed systems.
 
 Features
 --------
@@ -17,7 +17,7 @@ Add the following line to your `Cargo.toml` file under `[dependencies]`:
 
 
 ```toml
-snowflake_rs = "0.1.0"
+snowgen = "0.1.0"
 ```
 
 Usage
@@ -25,14 +25,14 @@ Usage
 
 
 ```rust
-use snowflake_rs::{SnowflakeBuilder, Epoch};
+use snowgen::{SnowgenBuilder, Epoch};
 
 fn main() {
-    // Create a new Snowflake builder with default values
-    let builder = SnowflakeBuilder::new();
+    // Create a new Snowgen builder with default values
+    let builder = SnowgenBuilder::new();
 
     // Customize the builder
-    let snowflake = builder
+    let snowgen = builder
         .node_id(1)
         .machine_id(2)
         .epoch(Epoch::MillisecondsSinceUnixEpoch(1615890112000))
@@ -44,7 +44,7 @@ fn main() {
         .unwrap();
 
     // Generate a unique ID
-    let unique_id = snowflake.next_id().unwrap();
+    let unique_id = snowgen.next_id().unwrap();
     println!("Generated ID: {}", unique_id);
 }
 ```
@@ -54,14 +54,14 @@ Benchmark Results
 
 
 ```text
-single_thread_snowflake time:   [243.83 ns 244.11 ns 244.41 ns]
+single_thread_snowgen time:   [243.83 ns 244.11 ns 244.41 ns]
                         change: [-0.3326% -0.0319% +0.2692%] (p = 0.84 > 0.05)
                         No change in performance detected.
 Found 4 outliers among 100 measurements (4.00%)
   1 (1.00%) low severe
   3 (3.00%) low mild
 
-multi_thread_snowflake  time:   [52.552 µs 52.991 µs 53.352 µs]
+multi_thread_snowgen  time:   [52.552 µs 52.991 µs 53.352 µs]
                         change: [-0.8495% -0.0131% +0.7323%] (p = 0.98 > 0.05)
                         No change in performance detected.
 Found 5 outliers among 100 measurements (5.00%)

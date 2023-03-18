@@ -1,41 +1,35 @@
+use snowgen::SnowgenBuilder;
 use std::sync::{Arc, Mutex};
 use std::thread;
-use snowflake_rs::SnowflakeBuilder;
 
 #[test]
-fn test_snowflake_unique_ids() {
-    let snowflake = SnowflakeBuilder::new()
-        .node_id(1)
-        .build()
-        .unwrap();
-    let snowflake = Arc::new(Mutex::new(snowflake));
+fn test_snowgen_unique_ids() {
+    let snowgen = SnowgenBuilder::new().node_id(1).build().unwrap();
+    let snowgen = Arc::new(Mutex::new(snowgen));
     let mut ids = std::collections::HashSet::new();
 
     for _ in 0..10000 {
-        let mut snowflake = snowflake.lock().unwrap();
-        let id = snowflake.next_id().unwrap();
-        drop(snowflake);
+        let mut snowgen = snowgen.lock().unwrap();
+        let id = snowgen.next_id().unwrap();
+        drop(snowgen);
         assert!(ids.insert(id), "ID duplicate：{}", id);
     }
 }
 
 #[test]
 fn test_snowflake_unique_ids_multithread() {
-    let snowflake = SnowflakeBuilder::new()
-        .node_id(1)
-        .build()
-        .unwrap();
-    let snowflake = Arc::new(Mutex::new(snowflake));
+    let snowgen = SnowgenBuilder::new().node_id(1).build().unwrap();
+    let snowgen = Arc::new(Mutex::new(snowgen));
     let mut handles = vec![];
 
     for _ in 0..10 {
-        let snowflake = Arc::clone(&snowflake);
+        let snowgen = Arc::clone(&snowgen);
         let handle = thread::spawn(move || {
             let mut ids = std::collections::HashSet::new();
             for _ in 0..1000 {
-                let mut snowflake = snowflake.lock().unwrap();
-                let id = snowflake.next_id().unwrap();
-                drop(snowflake);
+                let mut snowgen = snowgen.lock().unwrap();
+                let id = snowgen.next_id().unwrap();
+                drop(snowgen);
                 assert!(ids.insert(id), "ID duplicate：{}", id);
             }
             ids

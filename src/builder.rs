@@ -1,10 +1,10 @@
-//! Builder is a module that provides a SnowflakeBuilder struct for configuring and creating a Snowflake instance.
+//! Builder is a module that provides a SnowgenBuilder struct for configuring and creating a Snowgen instance.
 
+use crate::snowgen::Snowgen;
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
-use crate::snowflake::Snowflake;
 
-/// SnowflakeBuilder is a struct for building and configuring Snowflake instances.
-pub struct SnowflakeBuilder {
+/// SnowgenBuilder is a struct for building and configuring Snowgen instances.
+pub struct SnowgenBuilder {
     node_id: i32,
     machine_id: Option<i32>,
     epoch: Epoch,
@@ -31,25 +31,27 @@ impl Epoch {
         match self {
             Epoch::SystemTime(sys_time) => {
                 let duration_since_unix = sys_time.duration_since(UNIX_EPOCH).unwrap();
-                Instant::now() - (SystemTime::now().duration_since(UNIX_EPOCH).unwrap() - duration_since_unix)
+                Instant::now()
+                    - (SystemTime::now().duration_since(UNIX_EPOCH).unwrap() - duration_since_unix)
             }
             Epoch::Instant(instant) => *instant,
             Epoch::MillisecondsSinceUnixEpoch(ms) => {
                 let duration_since_unix = Duration::from_millis(*ms as u64);
-                Instant::now() - (SystemTime::now().duration_since(UNIX_EPOCH).unwrap() - duration_since_unix)
+                Instant::now()
+                    - (SystemTime::now().duration_since(UNIX_EPOCH).unwrap() - duration_since_unix)
             }
         }
     }
 }
 
-impl SnowflakeBuilder {
+impl SnowgenBuilder {
     /// Create a new SnowflakeBuilder with default values.
     ///
     /// # Returns
     ///
     /// A new SnowflakeBuilder instance.
-    pub fn new() -> SnowflakeBuilder {
-        SnowflakeBuilder {
+    pub fn new() -> SnowgenBuilder {
+        SnowgenBuilder {
             node_id: 0,
             machine_id: None,
             epoch: Epoch::SystemTime(SystemTime::UNIX_EPOCH),
@@ -164,11 +166,12 @@ impl SnowflakeBuilder {
     ///
     /// # Returns
     ///
-    /// A `Result` containing a new Snowflake instance if the configuration is valid,
+    /// A `Result` containing a new Snowgen instance if the configuration is valid,
     /// or an error message describing the issue otherwise.
-    pub fn build(self) -> Result<Snowflake, &'static str> {
+    pub fn build(self) -> Result<Snowgen, &'static str> {
         //Verify that the sum of bits does not exceed 64
-        if self.timestamp_bits + self.node_id_bits + self.machine_id_bits + self.sequence_bits > 64 {
+        if self.timestamp_bits + self.node_id_bits + self.machine_id_bits + self.sequence_bits > 64
+        {
             return Err("The sum of timestamp_bits, node_id_bits, machine_id_bits, and sequence_bits should not exceed 64.");
         }
 
@@ -182,11 +185,13 @@ impl SnowflakeBuilder {
         if let Some(machine_id) = self.machine_id {
             let max_machine_id = (1 << self.machine_id_bits) - 1;
             if machine_id < 0 || machine_id > max_machine_id {
-                return Err("Invalid machine_id, it should be between 0 and the maximum machine_id.");
+                return Err(
+                    "Invalid machine_id, it should be between 0 and the maximum machine_id.",
+                );
             }
         }
 
-        Ok(Snowflake {
+        Ok(Snowgen {
             node_id: self.node_id,
             machine_id: self.machine_id,
             epoch: self.epoch.to_instant(),

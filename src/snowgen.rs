@@ -1,9 +1,9 @@
-//! Snowflake is a module that provides a struct for generating unique, distributed IDs.
+//! Snowgen is a module that provides a struct for generating unique, distributed IDs.
 
 use std::time::{Duration, Instant};
 
-/// Snowflake struct represents a unique ID generator.
-pub struct Snowflake {
+/// Snowgen struct represents a unique ID generator.
+pub struct Snowgen {
     pub(crate) node_id: i32,
     pub(crate) machine_id: Option<i32>,
     pub(crate) epoch: Instant,
@@ -16,7 +16,7 @@ pub struct Snowflake {
     pub(crate) sequence: u16,
 }
 
-impl Snowflake {
+impl Snowgen {
     /// Generate the next unique ID.
     ///
     /// # Returns
@@ -41,7 +41,8 @@ impl Snowflake {
         self.sequence = seq;
 
         // Combine the timestamp, node_id, machine_id (if provided), and sequence to generate a unique ID
-        let id = ((timestamp as u64) << (self.node_id_bits + self.machine_id_bits + self.sequence_bits))
+        let id = ((timestamp as u64)
+            << (self.node_id_bits + self.machine_id_bits + self.sequence_bits))
             | ((self.node_id as u64) << (self.machine_id_bits + self.sequence_bits))
             | ((self.machine_id.unwrap_or(0) as u64) << self.sequence_bits)
             | seq as u64;
