@@ -4,7 +4,7 @@ use snowgen::{Epoch, SnowgenBuilder};
 use std::time::SystemTime;
 
 fn main() {
-    // Create a Snowflake instance with a specific epoch and node_id
+    // Create a Snowgen instance with a specific epoch and node_id
     let snowgen = SnowgenBuilder::new()
         .epoch(Epoch::SystemTime(SystemTime::UNIX_EPOCH))
         .node_id(1)
